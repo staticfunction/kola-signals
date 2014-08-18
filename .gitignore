@@ -1,5 +1,7 @@
 .idea
 node_modules
+bin-build
+bin-release
 **/*.js.map
 src/**/*.js
 test/**/*.js
