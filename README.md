@@ -1,6 +1,6 @@
 # STFU! Signals
 
-Statically-Typed For U implmentation of signals. Use with Typescript but you can also use it for Javascript/Coffeescript.
+Statically-Typed For U implementation of signals. Use with Typescript but you can also use it for Javascript/Coffeescript.
 
 ## Install via:
 
@@ -20,7 +20,7 @@ var receiver = (msg: string) => {
     console.log("message received!", msg);
 }
 
-messenger.addListener(receiver);
+messenger.addListener(new signals.SignalListener<string>(receiver));
 
 messenger.dispatch("Hello Awesomeness!");
 
