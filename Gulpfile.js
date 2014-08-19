@@ -38,8 +38,9 @@ gulp.task('bundle', function(cb) {
 
 gulp.task('release', function() {
     gulp.src(BUILD_DIR + '/signals.js')
+        .pipe(gulp.dest(RELEASE_DIR))
         .pipe(browserify())
-        .pipe(gulp.dest(RELEASE_DIR));
+        .pipe(gulp.dest(RELEASE_DIR + '/browser'));
 
     gulp.src(['package.json','README.md','LICENSE'])
         .pipe(gulp.dest(RELEASE_DIR));

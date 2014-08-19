@@ -18,6 +18,7 @@
       "type": "git",
       "url": "https://github.com/staticfunction/stfu-signals"
   },
+  "browser": "./browser/signals.js",
   "license": "MIT",
   "devDependencies": {
     "dts-bundle": "^0.2.0",
