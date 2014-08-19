@@ -56,6 +56,23 @@ describe("SignalDispatcher tests", () => {
         should.equal(smsDispatcher.getListenersLength(), 1);
     });
 
+    it("removes all listeners", () => {
+        phone1.displayMsg.reset();
+        phone2.displayMsg.reset();
+
+        smsDispatcher.addListener(phone1.displayMsg);
+        smsDispatcher.addListener(phone2.displayMsg);
+
+
+        smsDispatcher.removeAllListeners();
+
+
+        should.ok(phone1.displayMsg.notCalled, "Called when it shouldn't have been");
+        should.ok(phone2.displayMsg.notCalled, "Called when it shouldn't have been");
+
+        should.equal(smsDispatcher.getListenersLength(), 0);
+    });
+
     it("calls once", () => {
         var onceAFunction = sinon.spy();
         var onceAListener:signals.SignalListener<string> = new signals.SignalListener(onceAFunction, null, true);

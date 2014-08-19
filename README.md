@@ -55,7 +55,8 @@ smsService.dispatch("Hi there!");
 
 ## Call once
 ```typescript
+import signals = require('stfu-signals');
 
-
-
+var onceAListener:signals.SignalListener<string> = new signals.SignalListener(onceAFunction, null, true);
+smsDispatcher.addListener(onceAListener);
 ```

@@ -28,20 +28,33 @@ export class SignalDispatcher<T> {
         this.numListeners--;
     }
 
+    removeAllListeners():void {
+        this.listeners = {};
+        this.numListeners = 0;
+    }
+
     getListenersLength():number {
         return this.numListeners;
     }
 
     dispatch(payload:T):void {
+        var listenersTmp: {[s: string]: SignalListener<T>} = {};
+
         for(var id in this.listeners) {
             var listener = this.listeners[id];
             if(listener) {
                 listener.receiveSignal(payload);
+
                 if(listener.callOnce) {
                     this.removeListener(listener);
+                    continue;
                 }
+
+                listenersTmp[id] = this.listeners[id];
             }
         }
+
+        this.listeners = listenersTmp;
     }
 }
 
