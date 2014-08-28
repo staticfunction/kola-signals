@@ -10,6 +10,12 @@ var mocha = require('gulp-mocha');
 var BUILD_DIR = "bin-build";
 var RELEASE_DIR = "bin-release";
 
+/**
+ * TODO: fully automate build and release
+ * -have dts-bundle working properly. dts-bundle fails when you have external dependencies
+ * -autoincrement version after release
+ */
+
 gulp.task("compile", function() {
     var stream = gulp.src(['src/signals.ts', 'typings/tsd.d.ts'])
         .pipe(ts({
@@ -38,9 +44,7 @@ gulp.task('bundle', function(cb) {
 
 gulp.task('release', function() {
     gulp.src(BUILD_DIR + '/signals.js')
-        .pipe(gulp.dest(RELEASE_DIR))
-        .pipe(browserify())
-        .pipe(gulp.dest(RELEASE_DIR + '/browser'));
+        .pipe(gulp.dest(RELEASE_DIR));
 
     gulp.src(['package.json','README.md','LICENSE'])
         .pipe(gulp.dest(RELEASE_DIR));
