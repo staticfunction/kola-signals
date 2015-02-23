@@ -8,15 +8,15 @@ class SignalDispatcher<T> {
     removeListener(listener: SignalListener<T>): void;
     removeAllListeners(): void;
     getListenersLength(): number;
-    dispatch(payload: T): void;
+    dispatch(payload?: T): void;
 }
 class SignalListener<T> {
-    callback: (payload: T) => void;
+    callback: (payload?: T) => void;
     target: any;
     callOnce: boolean;
     id: number;
-    constructor(callback: (payload: T) => void, target?: any, callOnce?: boolean);
-    receiveSignal(payload: T): void;
+    constructor(callback: (payload?: T) => void, target?: any, callOnce?: boolean);
+    receiveSignal(payload?: T): void;
 }
 
 declare var kola: {signals: {SignalDispatcher: {new<T>(): SignalDispatcher<T>}; SignalListener: {new<T>(): SignalListener<T>}}}

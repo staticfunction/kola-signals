@@ -2,9 +2,10 @@
  * Created by staticfunction on 8/18/14.
  */
 var gulp = require('gulp');
-var browserify = require('gulp-browserify');
+var browserify = require('browserify');
 var dts = require('dts-bundle');
 var ts = require('gulp-tsc');
+var source = require('vinyl-source-stream');
 var mocha = require('gulp-mocha');
 
 var BUILD_DIR = "bin-build";
@@ -15,6 +16,12 @@ var RELEASE_DIR = "bin-release";
  * -have dts-bundle working properly. dts-bundle fails when you have external dependencies
  * -autoincrement version after release
  */
+
+var getBundleName = function () {
+    var version = require('./package.json').version;
+    var name = require('./package.json').name;
+    return version + '.' + name + '.' + 'min';
+};
 
 gulp.task("compile", function() {
     var stream = gulp.src(['src/signals.ts', 'typings/tsd.d.ts'])
@@ -27,6 +34,30 @@ gulp.task("compile", function() {
     return stream;
 });
 
+gulp.task("compile-amd", function() {
+    var stream = gulp.src(['src/signals.ts', 'typings/tsd.d.ts'])
+        .pipe(ts({
+            module: "amd",
+            declaration: true
+        }))
+        .pipe(gulp.dest(BUILD_DIR + "/amd"));
+
+    return stream;
+});
+
+gulp.task("compile-standalone", function() {
+    var bundler = browserify('./bin-build/signals.js');
+
+    var bundle = function() {
+        return bundler
+            .bundle()
+            .pipe(source('kola-signals.js'))
+            .pipe(gulp.dest(BUILD_DIR + '/standalone'));
+    };
+
+    return bundle();
+});
+
 gulp.task('test', function() {
     return gulp.src('test/**/*.js', {read: false})
         .pipe(mocha({reporter: 'nyan'}));
@@ -35,7 +66,7 @@ gulp.task('test', function() {
 gulp.task('bundle', function(cb) {
     dts.bundle({
         name: "stfu-signals",
-        main: BUILD_DIR + '/signals.d.ts',
+        main: BUILD_DIR + 'signals.d.ts',
         out:  'stfu-signals.d.ts'
     });
 

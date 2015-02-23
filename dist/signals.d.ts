@@ -9,15 +9,14 @@ declare module "kola-signals" {
         removeListener(listener: SignalListener<T>): void;
         removeAllListeners(): void;
         getListenersLength(): number;
-        dispatch(payload: T): void;
+        dispatch(payload?: T): void;
     }
     export class SignalListener<T> {
-        callback: (payload: T) => void;
+        callback: (payload?: T) => void;
         target: any;
         callOnce: boolean;
         id: number;
-        constructor(callback: (payload: T) => void, target?: any, callOnce?: boolean);
-        receiveSignal(payload: T): void;
+        constructor(callback: (payload?: T) => void, target?: any, callOnce?: boolean);
+        receiveSignal(payload?: T): void;
     }
 }
-

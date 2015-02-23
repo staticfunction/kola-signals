@@ -37,7 +37,7 @@ export class SignalDispatcher<T> {
         return this.numListeners;
     }
 
-    dispatch(payload:T):void {
+    dispatch(payload?: T):void {
         var listenersTmp: {[s: string]: SignalListener<T>} = {};
 
         for(var id in this.listeners) {
@@ -60,20 +60,20 @@ export class SignalDispatcher<T> {
 
 export class SignalListener<T> {
 
-    callback: (payload:T) => void;
+    callback: (payload?: T) => void;
     target: any;
     callOnce: boolean;
 
     id:number;
 
-    constructor(callback:(payload:T) => void, target?:any, callOnce?: boolean) {
+    constructor(callback:(payload?: T) => void, target?:any, callOnce?: boolean) {
         this.id = generateSignalId();
         this.callback = callback;
         this.target = target;
         this.callOnce = callOnce;
     }
 
-    receiveSignal(payload:T):void {
+    receiveSignal(payload?: T):void {
         this.callback.call(this.target, payload);
     }
 }
