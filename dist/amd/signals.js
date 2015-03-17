@@ -2,60 +2,49 @@ define(["require", "exports"], function (require, exports) {
     /**
      * Created by jcabresos on 2/15/14.
      */
-    var signalCount = 0;
-    function generateSignalId() {
-        var nextId = signalCount++;
-        return nextId;
-    }
-    var SignalDispatcher = (function () {
-        function SignalDispatcher() {
-            this.listeners = {};
-            this.numListeners = 0;
+    var Dispatcher = (function () {
+        function Dispatcher() {
+            this.listeners = [];
         }
-        SignalDispatcher.prototype.addListener = function (listener) {
-            this.listeners[listener.id] = listener;
-            this.numListeners++;
+        Dispatcher.prototype.listen = function (callback, target, callOnce) {
+            var listener = new Listener(callback, target, callOnce);
+            this.listeners.push(listener);
+            return listener;
         };
-        SignalDispatcher.prototype.removeListener = function (listener) {
-            this.listeners[listener.id] = undefined;
-            this.numListeners--;
+        Dispatcher.prototype.removeAllListeners = function () {
+            this.listeners = [];
         };
-        SignalDispatcher.prototype.removeAllListeners = function () {
-            this.listeners = {};
-            this.numListeners = 0;
+        Dispatcher.prototype.numListeners = function () {
+            return this.listeners.length;
         };
-        SignalDispatcher.prototype.getListenersLength = function () {
-            return this.numListeners;
-        };
-        SignalDispatcher.prototype.dispatch = function (payload) {
-            var listenersTmp = {};
-            for (var id in this.listeners) {
-                var listener = this.listeners[id];
-                if (listener) {
-                    listener.receiveSignal(payload);
-                    if (listener.callOnce) {
-                        this.removeListener(listener);
-                        continue;
-                    }
-                    listenersTmp[id] = this.listeners[id];
-                }
+        Dispatcher.prototype.dispatch = function (payload) {
+            var newListeners = [];
+            for (var i = 0; i < this.listeners.length; i++) {
+                var listener = this.listeners[i];
+                if (listener.receiveSignal(payload))
+                    newListeners.push(listener);
             }
-            this.listeners = listenersTmp;
+            this.listeners = newListeners;
         };
-        return SignalDispatcher;
+        return Dispatcher;
     })();
-    exports.SignalDispatcher = SignalDispatcher;
-    var SignalListener = (function () {
-        function SignalListener(callback, target, callOnce) {
-            this.id = generateSignalId();
-            this.callback = callback;
+    exports.Dispatcher = Dispatcher;
+    var Listener = (function () {
+        function Listener(callback, target, callOnce) {
+            var _this = this;
             this.target = target;
             this.callOnce = callOnce;
+            this.receiveSignal = function (payload) {
+                callback.apply(target, [payload]);
+                return _this.callOnce != true;
+            };
         }
-        SignalListener.prototype.receiveSignal = function (payload) {
-            this.callback.call(this.target, payload);
+        Listener.prototype.unlisten = function () {
+            this.receiveSignal = function (payload) {
+                return false;
+            };
         };
-        return SignalListener;
+        return Listener;
     })();
-    exports.SignalListener = SignalListener;
+    exports.Listener = Listener;
 });

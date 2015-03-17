@@ -1,22 +1,21 @@
 declare module "kola-signals" {
-    export class SignalDispatcher<T> {
-        listeners: {
-            [id: number]: SignalListener<T>;
-        };
-        private numListeners;
-        constructor();
-        addListener(listener: SignalListener<T>): void;
-        removeListener(listener: SignalListener<T>): void;
-        removeAllListeners(): void;
-        getListenersLength(): number;
-        dispatch(payload?: T): void;
-    }
-    export class SignalListener<T> {
-        callback: (payload?: T) => void;
-        target: any;
-        callOnce: boolean;
-        id: number;
-        constructor(callback: (payload?: T) => void, target?: any, callOnce?: boolean);
-        receiveSignal(payload?: T): void;
-    }
+/**
+ * Created by jcabresos on 2/15/14.
+ */
+export class Dispatcher<T> {
+    listeners: Listener<T>[];
+    constructor();
+    listen(callback: (payload?: T) => any, target?: any, callOnce?: boolean): Listener<T>;
+    removeAllListeners(): void;
+    numListeners(): number;
+    dispatch(payload?: T): void;
+}
+export class Listener<T> {
+    target: any;
+    callOnce: boolean;
+    receiveSignal: (payload?: T) => boolean;
+    constructor(callback: (payload?: T) => any, target?: any, callOnce?: boolean);
+    unlisten(): void;
+}
+
 }

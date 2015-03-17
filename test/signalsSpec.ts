@@ -8,11 +8,9 @@ import signals = require('../src/signals');
 class Phone {
 
     displayMsg;
-    smsSignalReceiver:signals.SignalListener<string>;
 
     constructor() {
         this.displayMsg = sinon.spy();
-        this.smsSignalReceiver = new signals.SignalListener<string>(this.onReceiveMsg, this);
     }
 
     onReceiveMsg(msg:string):void {
@@ -20,16 +18,18 @@ class Phone {
     }
 }
 
-describe("SignalDispatcher tests", () => {
-    var smsDispatcher:signals.SignalDispatcher<string> = new signals.SignalDispatcher<string>();
+describe("Dispatcher tests", () => {
+    var smsDispatcher:signals.Dispatcher<string> = new signals.Dispatcher<string>();
 
     var phone1:Phone = new Phone();
     var phone2:Phone = new Phone();
+    var phone1Listener: signals.Listener<string>;
+    var phone2Listener: signals.Listener<string>;
 
     it("adds listeners", () => {
-        smsDispatcher.addListener(phone1.smsSignalReceiver);
-        smsDispatcher.addListener(phone2.smsSignalReceiver);
-        should.equal(smsDispatcher.getListenersLength(), 2);
+        phone1Listener = smsDispatcher.listen(phone1.onReceiveMsg, phone1);
+        phone2Listener = smsDispatcher.listen(phone2.onReceiveMsg, phone2);
+        should.equal(smsDispatcher.numListeners(), 2);
     });
 
     it("dispatches message to listeners", () => {
@@ -45,7 +45,7 @@ describe("SignalDispatcher tests", () => {
         phone1.displayMsg.reset();
         phone2.displayMsg.reset();
 
-        smsDispatcher.removeListener(phone1.smsSignalReceiver);
+        phone1Listener.unlisten();
 
         smsDispatcher.dispatch("Hello World 2");
 
@@ -53,15 +53,15 @@ describe("SignalDispatcher tests", () => {
         should.ok(phone2.displayMsg.calledOnce, "Called more than once or never");
         should.ok(phone2.displayMsg.calledWith("Hello World 2"));
 
-        should.equal(smsDispatcher.getListenersLength(), 1);
+        should.equal(smsDispatcher.numListeners(), 1);
     });
 
     it("removes all listeners", () => {
         phone1.displayMsg.reset();
         phone2.displayMsg.reset();
 
-        smsDispatcher.addListener(phone1.displayMsg);
-        smsDispatcher.addListener(phone2.displayMsg);
+        smsDispatcher.listen(phone1.displayMsg);
+        smsDispatcher.listen(phone2.displayMsg);
 
 
         smsDispatcher.removeAllListeners();
@@ -70,14 +70,12 @@ describe("SignalDispatcher tests", () => {
         should.ok(phone1.displayMsg.notCalled, "Called when it shouldn't have been");
         should.ok(phone2.displayMsg.notCalled, "Called when it shouldn't have been");
 
-        should.equal(smsDispatcher.getListenersLength(), 0);
+        should.equal(smsDispatcher.numListeners(), 0);
     });
 
     it("calls once", () => {
         var onceAFunction = sinon.spy();
-        var onceAListener:signals.SignalListener<string> = new signals.SignalListener(onceAFunction, null, true);
-
-        smsDispatcher.addListener(onceAListener);
+        smsDispatcher.listen(onceAFunction, null, true);
 
         smsDispatcher.dispatch("Hello");
         smsDispatcher.dispatch("Hello");
