@@ -3,7 +3,7 @@
  */
 export class Dispatcher<T> {
 
-    listeners: Listener[];
+    listeners: Listener<T>[];
 
     constructor() {
         this.listeners = [];
@@ -24,8 +24,7 @@ export class Dispatcher<T> {
     }
 
     dispatch(payload?: T):void {
-        var newListeners: Listener[] = [];
-
+        var newListeners: Listener<T>[] = [];
 
         for(var i = 0; i < this.listeners.length; i++) {
 
@@ -45,7 +44,7 @@ export class Listener<T> {
     callOnce: boolean;
     receiveSignal: (payload?: T) => boolean;
 
-    constructor(callback:(payload?: T) => void, target?:any, callOnce?: boolean) {
+    constructor(callback:(payload?: T) => any, target?: any, callOnce?: boolean) {
         this.target = target;
         this.callOnce = callOnce;
 
