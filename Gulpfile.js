@@ -4,7 +4,6 @@
 var gulp = require('gulp');
 var browserify = require('browserify');
 var ts = require('gulp-typescript');
-var source = require('vinyl-source-stream');
 var sourcemaps = require('gulp-sourcemaps');
 var replace = require('gulp-replace');
 var insert = require('gulp-insert');
