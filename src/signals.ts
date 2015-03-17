@@ -49,7 +49,7 @@ export class Listener<T> {
         this.callOnce = callOnce;
 
         this.receiveSignal = (payload?: T) => {
-            callback.apply(this.target, payload);
+            callback.apply(target, [payload]);
             return this.callOnce != true;
         }
     }
