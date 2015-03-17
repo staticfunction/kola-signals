@@ -6,8 +6,7 @@ export class Dispatcher<T> {
     listeners: Listener[];
 
     constructor() {
-        this.listeners = {};
-        this.numListeners = 0;
+        this.listeners = [];
     }
 
     addListener(listener:SignalListener<T>):void {
@@ -21,32 +20,26 @@ export class Dispatcher<T> {
     }
 
     removeAllListeners():void {
-        this.listeners = {};
-        this.numListeners = 0;
+        this.listeners = [];
     }
 
-    getListenersLength():number {
-        return this.numListeners;
+    numListeners():number {
+        return this.listeners.length;
     }
 
     dispatch(payload?: T):void {
-        var listenersTmp: {[s: string]: SignalListener<T>} = {};
+        var newListeners: Listener[] = [];
 
-        for(var id in this.listeners) {
-            var listener = this.listeners[id];
-            if(listener) {
-                listener.receiveSignal(payload);
 
-                if(listener.callOnce) {
-                    this.removeListener(listener);
-                    continue;
-                }
+        for(var i = 0; i < this.listeners.length; i++) {
 
-                listenersTmp[id] = this.listeners[id];
-            }
+            var listener = this.listeners[i];
+
+            if(listener.receiveSignal(payload))
+                newListeners.push(listener);
         }
 
-        this.listeners = listenersTmp;
+        this.listeners = newListeners;
     }
 }
 
