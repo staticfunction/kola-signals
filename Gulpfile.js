@@ -6,61 +6,46 @@ var browserify = require('browserify');
 var dts = require('dts-bundle');
 var ts = require('gulp-typescript');
 var source = require('vinyl-source-stream');
+var sourcemaps = require('gulp-sourcemaps');
+var replace = require('gulp-replace');
+var insert = require('gulp-insert');
+var filter = require('gulp-filter');
+var merge = require('merge2');
 var mocha = require('gulp-mocha');
+var del = require('del');
+var pkg = require('./package.json');
 
 var BUILD_DIR = "bin-build";
 var RELEASE_DIR = "bin-release";
 
-/**
- * TODO: fully automate build and release
- * -have dts-bundle working properly. dts-bundle fails when you have external dependencies
- * -autoincrement version after release
- */
-
-var tsProject = ts.createProject({
-    declarationFiles: true,
-    module: "commonjs"
+var srcProject = ts.createProject({
+    module: "commonjs",
+    sortOutput: true
 })
 
-var getBundleName = function () {
-    var version = require('./package.json').version;
-    var name = require('./package.json').name;
-    return version + '.' + name + '.' + 'min';
-};
+gulp.task("debug", function() {
+    var srcOnly = filter(['*','!**Spec.js']);
+    var testOnly = filter(['**Spec.js']);
 
-gulp.task("compile", function() {
-    var commonjs = gulp.src(['src/signals.ts', 'typings/tsd.d.ts'])
-        .pipe(ts(tsProject));
+    var commonjs =
+        gulp.src(['src/signals.ts', 'test/**Spec.ts','typings/tsd.d.ts'])
+            .pipe(sourcemaps.init())
+            .pipe(ts(srcProject))
 
-    return commonjs.js.pipe(gulp.dest('build'))
+       return merge([
+           commonjs.js
+               .pipe(sourcemaps.write({includeContent: false, sourceRoot: 'src'}))
+               .pipe(srcOnly)
+               .pipe(gulp.dest('bin-debug/src'))
+               .pipe(srcOnly.restore())
+               .pipe(testOnly)
+               .pipe(gulp.dest('bin-debug/test'))
+           ]);
 });
 
-gulp.task("compile-amd", function() {
-    var stream = gulp.src(['src/signals.ts', 'typings/tsd.d.ts'])
-        .pipe(ts({
-            module: "amd",
-            declaration: true
-        }))
-        .pipe(gulp.dest(BUILD_DIR + "/amd"));
 
-    return stream;
-});
-
-gulp.task("compile-standalone", function() {
-    var bundler = browserify('./bin-build/signals.js');
-
-    var bundle = function() {
-        return bundler
-            .bundle()
-            .pipe(source('kola-signals.js'))
-            .pipe(gulp.dest(BUILD_DIR + '/standalone'));
-    };
-
-    return bundle();
-});
-
-gulp.task('test', function() {
-    return gulp.src('test/**/*.js', {read: false})
+gulp.task('test', ['debug'], function() {
+    return gulp.src('bin-debug/test/**/*.js', {read: false})
         .pipe(mocha({reporter: 'nyan'}));
 });
 
