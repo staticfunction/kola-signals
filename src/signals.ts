@@ -9,14 +9,10 @@ export class Dispatcher<T> {
         this.listeners = [];
     }
 
-    addListener(listener:SignalListener<T>):void {
-        this.listeners[listener.id] = listener;
-        this.numListeners++;
-    }
-
-    removeListener(listener:SignalListener<T>):void {
-        this.listeners[listener.id] = undefined;
-        this.numListeners--;
+    listen(callback: (payload?: T) => any, target?: any, callOnce?: boolean): Listener<T> {
+        var listener = new Listener(callback, target, callOnce);
+        this.listeners.push(listener);
+        return listener;
     }
 
     removeAllListeners():void {
@@ -45,20 +41,23 @@ export class Dispatcher<T> {
 
 export class Listener<T> {
 
-    callback: (payload?: T) => void;
     target: any;
     callOnce: boolean;
-
-    id:number;
+    receiveSignal: (payload?: T) => boolean;
 
     constructor(callback:(payload?: T) => void, target?:any, callOnce?: boolean) {
-        this.id = generateSignalId();
-        this.callback = callback;
         this.target = target;
         this.callOnce = callOnce;
+
+        this.receiveSignal = (payload?: T) => {
+            callback.apply(this.target, payload);
+            return this.callOnce != true;
+        }
     }
 
-    receiveSignal(payload?: T):void {
-        this.callback.call(this.target, payload);
+    unlisten(): void {
+        this.receiveSignal = (payload?: T) => {
+            return false;
+        }
     }
 }
