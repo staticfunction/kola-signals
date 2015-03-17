@@ -3,7 +3,6 @@
  */
 var gulp = require('gulp');
 var browserify = require('browserify');
-var dts = require('dts-bundle');
 var ts = require('gulp-typescript');
 var source = require('vinyl-source-stream');
 var sourcemaps = require('gulp-sourcemaps');
@@ -15,8 +14,6 @@ var mocha = require('gulp-mocha');
 var del = require('del');
 var pkg = require('./package.json');
 
-var BUILD_DIR = "bin-build";
-var RELEASE_DIR = "bin-release";
 
 var srcProject = ts.createProject({
     module: "commonjs",
@@ -49,22 +46,32 @@ gulp.task('test', ['debug'], function() {
         .pipe(mocha({reporter: 'nyan'}));
 });
 
-gulp.task('bundle', function(cb) {
-    dts.bundle({
-        name: "stfu-signals",
-        main: BUILD_DIR + 'signals.d.ts',
-        out:  'stfu-signals.d.ts'
-    });
-
-    cb();
+gulp.task('clean-dist', function(cb) {
+    del(['dist'], cb);
 })
 
-gulp.task('release', function() {
-    gulp.src(BUILD_DIR + '/signals.js')
-        .pipe(gulp.dest(RELEASE_DIR));
+gulp.task('release', ['clean-dist'], function() {
+    var commonjs = gulp.src(['src/signals.ts', 'typings/tsd.d.ts'])
+        .pipe(ts({
+            declarationFiles: true,
+            module: "commonjs"
+        }));
 
-    gulp.src(['package.json','README.md','LICENSE'])
-        .pipe(gulp.dest(RELEASE_DIR));
+    var amd = gulp.src(['src/signals.ts', 'typings/tsd.d.ts'])
+        .pipe(ts({
+            declarationFiles: true,
+            module: "amd"
+        }));
 
-    gulp.src(BUILD_DIR + '/stfu-signals.d.ts').pipe(gulp.dest(RELEASE_DIR));
+
+    return merge([
+        commonjs.js
+            .pipe(gulp.dest('dist')),
+        commonjs.dts
+            .pipe(replace(/declare\s/g, ''))
+            .pipe(insert.wrap('declare module \"'+ pkg.name +'\" {\n', '\n}'))
+            .pipe(gulp.dest('dist')),
+        amd.js
+            .pipe(gulp.dest('dist/amd'))
+    ])
 })
