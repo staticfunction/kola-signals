@@ -1,17 +1,9 @@
 /**
  * Created by jcabresos on 2/15/14.
  */
-var signalCount:number = 0;
-function generateSignalId():number {
-    var nextId:number = signalCount++;
-    return nextId;
-}
+export class Dispatcher<T> {
 
-export class SignalDispatcher<T> {
-
-    listeners:{[id: number]: SignalListener<T>};
-
-    private numListeners:number;
+    listeners: Listener[];
 
     constructor() {
         this.listeners = {};
@@ -58,7 +50,7 @@ export class SignalDispatcher<T> {
     }
 }
 
-export class SignalListener<T> {
+export class Listener<T> {
 
     callback: (payload?: T) => void;
     target: any;
