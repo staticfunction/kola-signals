@@ -4,7 +4,7 @@
 var gulp = require('gulp');
 var browserify = require('browserify');
 var dts = require('dts-bundle');
-var ts = require('gulp-tsc');
+var ts = require('gulp-typescript');
 var source = require('vinyl-source-stream');
 var mocha = require('gulp-mocha');
 
@@ -17,6 +17,11 @@ var RELEASE_DIR = "bin-release";
  * -autoincrement version after release
  */
 
+var tsProject = ts.createProject({
+    declarationFiles: true,
+    module: "commonjs"
+})
+
 var getBundleName = function () {
     var version = require('./package.json').version;
     var name = require('./package.json').name;
@@ -24,14 +29,10 @@ var getBundleName = function () {
 };
 
 gulp.task("compile", function() {
-    var stream = gulp.src(['src/signals.ts', 'typings/tsd.d.ts'])
-        .pipe(ts({
-            module: "commonjs",
-            declaration: true
-        }))
-        .pipe(gulp.dest(BUILD_DIR));
+    var commonjs = gulp.src(['src/signals.ts', 'typings/tsd.d.ts'])
+        .pipe(ts(tsProject));
 
-    return stream;
+    return commonjs.js.pipe(gulp.dest('build'))
 });
 
 gulp.task("compile-amd", function() {
