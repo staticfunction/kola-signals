@@ -9,7 +9,7 @@
     "kola"
   ],
   "typescript": {
-    "definition": "kola-signals.d.ts"
+    "definition": "dist/signals.d.ts"
   },
   "author": {
     "name": "James Roland Cabresos",

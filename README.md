@@ -21,7 +21,6 @@ var receiver = (msg: string) => {
 }
 
 messenger.listen(receiver);
-
 messenger.dispatch("Hello Awesomeness!");
 
 ```
