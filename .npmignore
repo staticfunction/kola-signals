@@ -1,6 +1,10 @@
 .idea
 bin-build
 bin-release
+bin-debug
 typings
 src
 test
+typings
+Gulpfile.js
+tsd.json
