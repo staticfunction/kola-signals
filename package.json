@@ -1,6 +1,6 @@
 {
   "name": "kola-signals",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Simple signals implementation for TypesScript",
   "main": "dist/signals.js",
   "keywords": [
